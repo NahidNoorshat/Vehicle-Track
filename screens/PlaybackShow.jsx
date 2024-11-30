@@ -204,7 +204,7 @@ const PlaybackShow = ({route}) => {
           <View className=" flex flex-row items-center gap-1">
             <Image source={movingicon} className=" h-6 w-6 mr-2" />
             <View className=" flex flex-col ">
-              <Text className=" text-sm  text-[#006E99]">
+              <Text className=" text-sm  text-[#006E99] w-24">
                 {stopDuration ? `${stopDuration} ` : '0 h'}
               </Text>
               <Text className="text-[#006E99]  font-medium text-xs">

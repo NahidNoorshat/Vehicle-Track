@@ -16,28 +16,55 @@ import geofence from '../assets/geofence.svg';
 import downarrow from '../assets/down-arrow.png';
 import upload from '../assets/upload.png';
 import {AuthContext} from '../context/AuthProvider';
+import CarSetting from '../assets/AppSetting/CarSetting.png';
+import OverSpeed from '../assets/AppSetting/OverSpeed.png';
+import GeoFence from '../assets/AppSetting/GeoFence.png';
+
+// icons for marker..
+import CarIcon from '../assets/markericons/cariconmarker.png';
+import Human from '../assets/markericons/humantopviewicon.png';
+import TracIcon from '../assets/markericons/Truckicon.png';
 
 const AppSetting = () => {
+  const {setIconmarker, singlecarinfo} = useContext(AuthContext);
   const [modal, setModal] = useState(false);
-  const {devicedata} = useContext(AuthContext);
+  const [newModal, setNewModl] = useState(false);
+  const {devicedata, alldevice} = useContext(AuthContext);
 
-  const namesArray = devicedata.result.map(item => item.name);
+  // const namesArray = devicedata.result.map(item => item.name);
+  const deviceNames = alldevice?.map(device => device.name);
 
-  console.log(namesArray);
+  console.log(
+    '88888888888888888888',
+    alldevice,
+    'All device data 00000000000000000000000000',
+  );
+  console.log(deviceNames);
   const [openarrow, setOpenarrow] = useState(false);
-  const [selectedvalue, setSelectedvalue] = useState('Hello Nahid.');
+  const [selectedvalue, setSelectedvalue] = useState(singlecarinfo?.name);
 
   const [statedata, setStatedata] = useState([]);
+
+  const handlaeIcon = iconMarker => {
+    setIconmarker(iconMarker);
+    setNewModl(false);
+  };
 
   return (
     <View className=" mx-6 mt-2">
       <AppSetting1 title={'Notification Setting'} />
       <AppSetting2 title={'Notification'} />
-      <AppSetting2 title={'Device Setting'} />
-      <AppSetting2 title={'Overspeed Setting '} setModal={setModal} />
-      <AppSetting2 title={'GeoFence'} naigator={'GeoFence'} />
-      <AppSetting2 title={'Notification'} />
-      <AppSetting2 title={'Notification'} />
+      <AppSetting2
+        title={'Device Setting'}
+        icon={CarSetting}
+        setModal={setNewModl}
+      />
+      <AppSetting2
+        title={'Overspeed Setting '}
+        setModal={setModal}
+        icon={OverSpeed}
+      />
+      <AppSetting2 title={'GeoFence'} naigator={'GeoFence'} icon={GeoFence} />
 
       <Modal visible={modal} transparent={true}>
         <View className=" flex-1  justify-center items-center  ">
@@ -60,18 +87,16 @@ const AppSetting = () => {
               {openarrow && (
                 <View className=" absolute top-14 left-0 h-[150px] w-[113%] bg-white z-10 shadow-xl drop-shadow-xl rounded-b-xl ">
                   <FlatList
-                    data={statedata}
+                    data={deviceNames}
                     renderItem={({item, index}) => {
                       return (
                         <TouchableOpacity
                           onPress={() => {
-                            setSelectedvalue(item.name);
+                            setSelectedvalue(item);
                             setOpenarrow(false);
                           }}
                           className=" self-center h-7  ">
-                          <Text className="text-lg text-black ">
-                            {item.name}
-                          </Text>
+                          <Text className="text-lg text-black ">{item}</Text>
                         </TouchableOpacity>
                       );
                     }}
@@ -87,6 +112,25 @@ const AppSetting = () => {
               </TouchableOpacity>
             </View>
           </View>
+        </View>
+      </Modal>
+
+      <Modal visible={newModal} transparent={true}>
+        <View className=" flex-1 justify-center items-center ">
+          <View className=" bg-white flex py-4 self-center rounded-xl w-[95%] h-[250px] mx-5 shadow-xl  flex-row gap-4 ">
+            <TouchableOpacity onPress={() => handlaeIcon(CarIcon)}>
+              <Image source={CarIcon} className=" h-[80px] w-[80px] " />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handlaeIcon(Human)}>
+              <Image source={Human} className=" h-[80px] w-[80px] " />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handlaeIcon(TracIcon)}>
+              <Image source={TracIcon} className=" h-[80px] w-[80px] " />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity onPress={() => setNewModl(false)}>
+            <Text>Close</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
     </View>

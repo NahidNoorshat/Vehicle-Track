@@ -20,6 +20,8 @@ const KmSummary = () => {
   const [todate, setTodate] = useState(null);
   const [fromdate, setFromdate] = useState(null);
 
+  const [newerror, setNewerror] = useState(false);
+
   // feching data..
   const [todayroute, setTodayroute] = useState(null);
   const [yesterdayroute, setYesterdayroute] = useState(null);
@@ -45,8 +47,8 @@ const KmSummary = () => {
     setTodate(date);
     hideDatePicker();
   };
-  console.log(todate);
-  console.log(fromdate);
+  console.log(todate, 'selectd...');
+  console.log(fromdate, 'selected....');
 
   // data faching...................
 
@@ -92,13 +94,17 @@ const KmSummary = () => {
 
   const handleDataFetch = async () => {
     // Check if both fromdate and todate are selected
+    console.log(fromdate, todate, 'cheking both date and time..');
     if (fromdate && todate) {
       // Call getdata function with selected dates
+
       const custondata = await getdata(iemei, fromdate, todate);
       console.log(custondata, 'custon data cheking... ');
       setCustomroute(custondata[0]);
+      setNewerror(false);
     } else {
       console.warn('Please select both from and to dates');
+      setNewerror(true);
     }
   };
 
@@ -113,10 +119,6 @@ const KmSummary = () => {
       console.log(today.startDateTime, 'this is start date time....');
       console.log(today.endDateTime, 'this is start date time....');
 
-      // const yesterday = {
-      //   fromDate: moment().subtract(1, 'days').startOf('day').toDate(),
-      //   toDate: moment().subtract(1, 'days').endOf('day').toDate(),
-      // };
       const last7days = {
         endDateTime: now.toISOString(),
         startDateTime: new Date(now - 7 * 24 * 3600000).toISOString(),
@@ -134,11 +136,6 @@ const KmSummary = () => {
 
       setTodayroute(todayData[0]);
 
-      // const yesterdayData = await getdata(
-      //   iemei,
-      //   yesterday.fromDate,
-      //   yesterday.toDate,
-      // );
       const last7daysData = await getdata(
         iemei,
         last7days.startDateTime,
@@ -219,7 +216,7 @@ const KmSummary = () => {
       <View className=" bg-white rounded-lg overflow-hidden w-full  shadow-lg px-3 mx-2 mt-5 ">
         <View className="mt-1">
           <View>
-            <Text className=" text-black ">From: </Text>
+            <Text className=" text-black">From: </Text>
             <View className="flex flex-row mx-3 justify-between">
               <TouchableOpacity
                 className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
@@ -229,50 +226,6 @@ const KmSummary = () => {
                   <Text className="text-white">Select date</Text>
                 </View>
               </TouchableOpacity>
-              {/* <TouchableOpacity
-                className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
-                onPress={showTimePicker}>
-                <View className="flex flex-row items-center gap-1">
-                  <Image source={Timepicker} className=" h-7 w-7  " />
-                  <Text className="text-white">Select Time</Text>
-                </View>
-              </TouchableOpacity> */}
-            </View>
-
-            <DateTimePickerModal
-              isVisible={isDatePickerVisible}
-              mode="date"
-              onConfirm={handleToConfirm}
-              onCancel={hideDatePicker}
-            />
-
-            {/* <DateTimePickerModal
-              isVisible={isTimePickerVisible}
-              mode="time"
-              onConfirm={handleTimeConfirm}
-              onCancel={hideTimePicker}
-            /> */}
-          </View>
-
-          <View>
-            <Text className=" text-black">To: </Text>
-            <View className="flex flex-row mx-3 justify-between">
-              <TouchableOpacity
-                className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
-                onPress={showDatePicker}>
-                <View className="flex flex-row items-center gap-1">
-                  <Image source={calander} className=" h-7 w-7  " />
-                  <Text className="text-white">Select date</Text>
-                </View>
-              </TouchableOpacity>
-              {/* <TouchableOpacity
-                className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
-                onPress={showTimePicker}>
-                <View className="flex flex-row items-center gap-1">
-                  <Image source={Timepicker} className=" h-7 w-7  " />
-                  <Text className="text-white">Select Time</Text>
-                </View>
-              </TouchableOpacity> */}
             </View>
 
             <DateTimePickerModal
@@ -281,13 +234,26 @@ const KmSummary = () => {
               onConfirm={handleFromConfirm}
               onCancel={hideDatePicker}
             />
+          </View>
+          <View>
+            <Text className=" text-black ">TO: </Text>
+            <View className="flex flex-row mx-3 justify-between">
+              <TouchableOpacity
+                className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
+                onPress={showDatePicker}>
+                <View className="flex flex-row items-center gap-1">
+                  <Image source={calander} className=" h-7 w-7  " />
+                  <Text className="text-white">Select date</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
 
-            {/* <DateTimePickerModal
-              isVisible={isTimePickerVisible}
-              mode="time"
-              onConfirm={handleTimeConfirm}
-              onCancel={hideTimePicker}
-            /> */}
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="date"
+              onConfirm={handleToConfirm}
+              onCancel={hideDatePicker}
+            />
           </View>
         </View>
 
@@ -297,12 +263,30 @@ const KmSummary = () => {
           </Text>
         </View>
 
-        <View className=" flex items-center">
+        {/* <View className=" flex items-center">
           <TouchableOpacity
             onPress={handleDataFetch}
             className=" px-4 py-2 my-4 bg-[#006E99] rounded-2xl  ">
             <Text className=" text-white">Face data</Text>
           </TouchableOpacity>
+        </View> */}
+        <View className=" flex items-center">
+          {newerror ? (
+            <TouchableOpacity
+              onPress={() => {
+                // Show popup or error message
+                alert('An error occurred while fetching data.');
+              }}
+              className=" px-4 py-2 my-4  bg-red-500 rounded-2xl">
+              <Text className=" text-white">Face data</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={handleDataFetch}
+              className=" px-4 py-2 my-4 bg-[#006E99] rounded-2xl">
+              <Text className=" text-white">Face data</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 

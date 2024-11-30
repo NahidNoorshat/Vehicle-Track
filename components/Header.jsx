@@ -6,8 +6,8 @@ const Header = () => {
     <View>
       <View className="bg-white flex flex-row justify-between items-center">
         <StatusBar
-          backgroundColor="blue" // Example: Change color as needed
-          barStyle="light-content" // Example: Set bar style
+          backgroundColor="white" // Example: Change color as needed
+          barStyle="dark-content" // Example: Set bar style
           hidden={false}
         />
         <Image

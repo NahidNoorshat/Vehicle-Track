@@ -18,10 +18,10 @@ const CarDiaplayhome = ({setDisplay, dislpay, data}) => {
     setDisplay(!dislpay);
   };
 
-  console.log(
-    'ti si sfo chekcing............... 999999999999999999999999',
-    data,
-  );
+  // console.log(
+  //   'ti si sfo chekcing............... 999999999999999999999999',
+  //   data,
+  // );
 
   // navigation for playback......................
 
@@ -59,10 +59,10 @@ const CarDiaplayhome = ({setDisplay, dislpay, data}) => {
                   source={require('../assets/group.png')}
                 />
                 <Text className="text-[10px] leading-[12.1px] text-black ">
-                  {data?.location_data.speed}/h
+                  {data?.location_data?.speed}/h
                 </Text>
               </View>
-              <View className="flex flex-row gap-2  ">
+              <View className="flex flex-row gap-2 w-[130px] ">
                 <Image
                   className=" h-[14px] w-[14px]   "
                   resizeMode="cover"
@@ -70,6 +70,9 @@ const CarDiaplayhome = ({setDisplay, dislpay, data}) => {
                 />
                 <Text className="text-[10px] leading-[12.1px] text-black">
                   {data?.status}
+                </Text>
+                <Text className="text-[10px] leading-[12.1px] text-black">
+                  {data?.status_time}
                 </Text>
               </View>
             </View>

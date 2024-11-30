@@ -4,8 +4,6 @@ import {
   Text,
   View,
   ScrollView,
-  StatusBar,
-  SafeAreaView,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
@@ -20,10 +18,11 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 const Frame1 = () => {
   const navigation = useNavigation();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
+  const [allDevices, setAllDevices] = useState([]);
 
-  const {setDevicedata} = useContext(AuthContext);
+  const {setDevicedata, setAlldevice} = useContext(AuthContext);
 
   const handleMap = () => {
     navigation.navigate(Map);
@@ -32,10 +31,10 @@ const Frame1 = () => {
   useEffect(() => {
     postData();
     // Set up interval for periodic API calls
-    // const intervalId = setInterval(postData, 10000);
+    const intervalId = setInterval(postData, 10000);
 
     // Cleanup function to clear the interval when the component unmounts
-    // return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId);
   }, []);
 
   // post data function **************************
@@ -64,7 +63,21 @@ const Frame1 = () => {
 
         // Handle the response data as needed
         console.log('this is resposse', response.data);
-        await setData(response.data);
+        const devices = response.data.result.reduce(
+          (accumulator, currentGroup) => {
+            // Extract devices from each group and concatenate them into one array
+            return accumulator.concat(currentGroup.devices);
+          },
+          [],
+        );
+        console.log(
+          devices,
+          '***********************checking devices all **********************************',
+        );
+        setAllDevices(devices);
+
+        await setAlldevice(devices);
+
         await setDevicedata(response.data);
         setLoading(false);
       } else {
@@ -90,21 +103,13 @@ const Frame1 = () => {
   }
 
   return (
-    <SafeAreaView className=" flex-1 ">
-      {/* <StatusBar
-        backgroundColor="blue" // Example: Change color as needed
-        barStyle="light-content" // Example: Set bar style
-        hidden={false}
-      />
-      <View className=" items-center justify-center flex-1 ">
-        <Text>Hello Nahid</Text>
-      </View> */}
+    <View className=" flex-1 ">
       <View className="bg-[#FBF8F8] h-full">
         <Header />
         <Text style={styles.activeDevices}>Active Devices</Text>
 
         <ScrollView>
-          {data.result?.map((vehicle, index) => (
+          {allDevices?.map((vehicle, index) => (
             <View key={index}>
               <CarDisplay data={vehicle} />
             </View>
@@ -122,7 +127,7 @@ const Frame1 = () => {
           </TouchableOpacity>
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

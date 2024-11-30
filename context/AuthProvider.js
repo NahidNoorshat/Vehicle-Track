@@ -10,6 +10,8 @@ const AuthProvider = ({children}) => {
   const [singlecarinfo, setSinglecarinf] = useState();
   const [playbackinfo, setPlaybackinfo] = useState();
   const [notifications, setNotification] = useState();
+  const [alldevice, setAlldevice] = useState();
+  const [iconmarker, setIconmarker] = useState();
 
   return (
     <AuthContext.Provider
@@ -28,6 +30,10 @@ const AuthProvider = ({children}) => {
         setPlaybackinfo,
         notifications,
         setNotification,
+        alldevice,
+        setAlldevice,
+        iconmarker,
+        setIconmarker,
       }}>
       {children}
     </AuthContext.Provider>

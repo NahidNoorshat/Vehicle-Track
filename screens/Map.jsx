@@ -10,8 +10,9 @@ import Slider from '@react-native-community/slider';
 import {AuthContext} from '../context/AuthProvider';
 
 const Map = () => {
-  const {devicedata} = useContext(AuthContext);
-  // console.log(devicedata);
+  const {alldevice} = useContext(AuthContext);
+  console.log(alldevice, 'map page data.......................');
+  // console.log(alldevice[4].location_data.lat);
 
   return (
     <View className=" flex min-h-screen ">
@@ -30,24 +31,28 @@ const Map = () => {
             latitudeDelta: 10.075,
             longitudeDelta: 10.0721,
           }}>
-          {/* <Marker
-            coordinate={{
-              latitude: 23.870547706071235,
-              longitude: 90.3891613061401,
-            }}
-          /> */}
+          {alldevice.map((device, index) => {
+            const latitude = device.location_data?.lat;
+            const longitude = device.location_data?.lng;
 
-          {devicedata?.result?.map((item, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: item?.location_data?.lat,
-                longitude: item?.location_data?.lng,
-              }}
-              title={item.name}
-              description={item.status}
-            />
-          ))}
+            // Check if latitude and longitude are both available
+            if (latitude && longitude) {
+              return (
+                <Marker
+                  key={index} // Ensure each marker has a unique key
+                  coordinate={{
+                    latitude: latitude,
+                    longitude: longitude,
+                  }}
+                  title={device.name}
+                  description={device.status}
+                />
+              );
+            } else {
+              // Return null or a placeholder if no coordinates are available
+              return null; // or return a placeholder marker
+            }
+          })}
         </MapView>
       </View>
     </View>

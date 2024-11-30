@@ -21,178 +21,111 @@ import Timepicker from '../assets/Timepicker.png';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Playback = () => {
-  const {iemei, setpreviousdata, setPlaybackinfo} = useContext(AuthContext);
+  const {iemei, setpreviousdata, singlecarinfo, setPlaybackinfo} =
+    useContext(AuthContext);
   // testig the filter button...................
-  const [activeFilter, setActiveFilter] = useState('filter1');
-  const [palybackdata, setPlaybackdta] = useState();
+
+  const [activeFilter, setActiveFilter] = useState('lastHour');
+  const [newerror, setNewerror] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const [fromDate, setFromDate] = useState(null);
-  const [fromTime, setFromTime] = useState(null);
-  const [toDate, setToDate] = useState(null);
-  const [toTime, setToTime] = useState(null);
-
-  // date tiem picker...........
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
-
   const [datetimeview, setDatetimeview] = useState(false);
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const [isCustomDateSelected, setIsCustomDateSelected] = useState(false); // New state variable
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
-  const handledatetimeview = () => {
-    setDatetimeview(!datetimeview);
-  };
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleFormDateConfirm = date => {
-    console.log('A date has ************************** been picked: ', date);
-    hideDatePicker();
-    setFromDate(date);
-    console.log(fromDate, 'on the function...');
-    // const isoDate = date.toISOString();
-    // dynamicDtf = isoDate;
-    // console.log(dynamicDtf, 'let chekc1st');
-  };
-  const handleToDateConfirm = date => {
-    console.log('A date has 99999999999 been picked: ', date);
-    hideDatePicker();
-    setToDate(date);
-    // const isoDate = date.toISOString();
-    // dynamicDtt = isoDate;
-  };
-
-  const showTimePicker = () => {
-    setTimePickerVisibility(true);
-  };
-
-  const hideTimePicker = () => {
-    setTimePickerVisibility(false);
-  };
-
-  const handleTimeConfirm = date => {
-    console.log('A date has (((((((((((()))))))))))) been picked: ', date);
-    hideTimePicker();
-    setFromTime(date);
-    // const isoTime = date.toISOString();
-    // dynamicDtf = isoTime;
-  };
-
-  // date time picker end... ************
-
-  // const handleFilterPress = filter => {
-  //   setActiveFilter(filter);
-  //   // Update dynamicDtf and dynamicDtt based on the selected filter
-  //   const now = new Date();
-  //   switch (filter) {
-  //     case 'filter1':
-  //       dynamicDtt = now.toISOString();
-  //       dynamicDtf = new Date(now - 3600000).toISOString();
-  //       break;
-  //     case 'filter2':
-  //       dynamicDtt = now.toISOString();
-  //       dynamicDtf = new Date(now - 3 * 24 * 3600000).toISOString();
-  //       break;
-  //     case 'filter3':
-  //       dynamicDtt = now.toISOString();
-  //       dynamicDtf = new Date(now - 7 * 24 * 3600000).toISOString();
-  //       break;
-  //     case 'filter4':
-  //       dynamicDtt = now.toISOString();
-  //       dynamicDtf = new Date(now - 30 * 24 * 3600000).toISOString(); // 1 month earlier
-  //       break;
-
-  //     case 'filter5':
-  //       dynamicDtt = now.toISOString();
-  //       dynamicDtf = new Date(now - 24 * 3600000).toISOString(); // 1 day before
-  //       break;
-
-  //     // Add more cases for additional filters
-  //     default:
-  //       break;
-  //   }
-
-  //   // If toDate and toTime are available, update dynamicDtt
-  //   // if (fromDate && toDate) {
-  //   //   dynamicDtf = fromDate.toISOString();
-  //   //   dynamicDtt = toDate.toISOString();
-  //   // }
-
-  //   // Fetch data with updated dynamicDtf and dynamicDtt
-  //   getdata(dynamicImei, dynamicDtf, dynamicDtt);
-  // };
-
+  // Function to handle filter press...
   const handleFilterPress = filter => {
-    setActiveFilter(filter);
-    let startDateTime, endDateTime;
+    if (!isCustomDateSelected) {
+      // Disable filter press if custom date is selected
+      setActiveFilter(filter);
+      let startDateTime, endDateTime;
 
-    // Update startDateTime and endDateTime based on the selected filter
-    const now = new Date();
-    switch (filter) {
-      case 'filter1':
-        endDateTime = now.toISOString();
-        startDateTime = new Date(now - 3600000).toISOString();
-        break;
-      case 'filter2':
-        endDateTime = now.toISOString();
-        startDateTime = new Date(now - 3 * 24 * 3600000).toISOString();
-        break;
-      case 'filter3':
-        endDateTime = now.toISOString();
-        startDateTime = new Date(now - 7 * 24 * 3600000).toISOString();
-        break;
-      case 'filter4':
-        endDateTime = now.toISOString();
-        startDateTime = new Date(now - 30 * 24 * 3600000).toISOString(); // 1 month earlier
-        break;
-      case 'filter5':
-        endDateTime = now.toISOString();
-        startDateTime = new Date(now - 24 * 3600000).toISOString(); // 1 day before
-        break;
-      default:
-        break;
+      // Logic to determine startDateTime and endDateTime based on the selected filter...
+
+      const now = new Date();
+      switch (filter) {
+        case 'lastHour':
+          endDateTime = now.toISOString();
+          startDateTime = new Date(now - 3600000).toISOString();
+          break;
+        case 'today':
+          endDateTime = now.toISOString();
+          startDateTime = new Date(now - 24 * 3600000).toISOString(); // 1 day before
+          break;
+        case 'last3Days':
+          // Update startDateTime and endDateTime for the last 3 days...
+          endDateTime = now.toISOString();
+          startDateTime = new Date(now - 7 * 24 * 3600000).toISOString();
+          break;
+        case 'lastWeek':
+          // Update startDateTime and endDateTime for the last week...
+          endDateTime = now.toISOString();
+          startDateTime = new Date(now - 7 * 24 * 3600000).toISOString();
+          break;
+        case 'lastMonth':
+          // Update startDateTime and endDateTime for the last month...
+          endDateTime = now.toISOString();
+          startDateTime = new Date(now - 30 * 24 * 3600000).toISOString(); // 1 month earlier
+          break;
+        default:
+          break;
+      }
+      // Fetch data with updated startDateTime and endDateTime...
+      console.log(
+        startDateTime,
+        endDateTime,
+        'cheking all date time is ok or not..',
+      );
+      fetchData(iemei, startDateTime, endDateTime);
     }
+  };
 
-    // If toDate and fromDate are available, update startDateTime and endDateTime
+  useEffect(() => {
+    if (!isCustomDateSelected) {
+      // Call fetchData with default parameters
+      handleFilterPress(activeFilter);
+    }
+  }, []);
+  // Function to handle date selection...
+  const handleDateSelection = () => {
+    console.log(fromDate, toDate, 'befor call api...');
     if (fromDate && toDate) {
-      startDateTime = fromDate.toISOString();
-      endDateTime = toDate.toISOString();
+      // If both fromDate and toDate are selected, call the API...
+      const startDateTime = fromDate.toISOString();
+      const endDateTime = toDate.toISOString();
+      fetchData(iemei, startDateTime, endDateTime);
+
+      // Update isCustomDateSelected state
+      setIsCustomDateSelected(true);
+    } else {
+      // Show an error message or handle the case when both dates are not selected...
+      console.log('Please select both From and To dates');
     }
-
-    // Fetch data with updated startDateTime and endDateTime
-    getdata(dynamicImei, startDateTime, endDateTime);
   };
 
-  // test done on filter button................
-  const navigation = useNavigation();
-
-  const handlePlaybak = () => {
-    navigation.navigate('PlaybackShow');
-  };
-
-  // get data.......................
-  const getdata = async (imei, dtf, dtt) => {
+  // Function to fetch data from the API...
+  const fetchData = async (iemei, startDateTime, endDateTime) => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       let tokendon = JSON.parse(token);
-      console.log('this is t,,,,', token);
-      console.log('This is pase token.. ', tokendon);
+      // console.log('this is t,,,,', token);
+      // console.log('This is pase token.. ', tokendon);
+      console.log(
+        iemei,
+
+        'request handeling data cheking.....',
+      );
 
       const url2 = 'https://gps.speedotrack.com/api/device-history';
 
       const requestData2 = {
         cmd: 'load_route_data',
-        // imei: '357544372448254',
-        // dtf: '2023-12-24T05:30:00Z',
-        imei: imei,
-        dtf: dtf,
-        dtt: dtt,
+
+        imei: iemei,
+        dtf: startDateTime,
+        dtt: endDateTime,
         min_stop_duration: 1,
       };
 
@@ -204,9 +137,9 @@ const Playback = () => {
       });
 
       const responseData = await response.data;
-      // console.log('ok chek response ......', responseData);
+      console.log('ok chek response ......', responseData);
 
-      setPlaybackdta(responseData);
+      // setPlaybackdta(responseData);
       setpreviousdata(responseData?.route);
       setPlaybackinfo({
         topSpeed: responseData?.topSpeed,
@@ -214,6 +147,7 @@ const Playback = () => {
         avgSpeed: responseData?.avgSpeed,
         stopDuration: responseData?.stopDuration,
       });
+      setNewerror(false);
       setLoading(false);
     } catch (error) {
       console.error('AxiosError: ', error);
@@ -222,62 +156,49 @@ const Playback = () => {
         'AxiosError Details:',
         error.response.data || error.request || error.message,
       );
+      setNewerror(true);
       setLoading(false);
     }
-
-    // console.log('this is data form playbna', palybackdata);
   };
 
-  // console.log(fromDate, 'this is form dateee........');
-
-  const dynamicImei = iemei;
-  let dynamicDtf = '2023-12-24T05:30:00Z';
-  let dynamicDtt = '2023-12-25T06:00:00';
-
-  const currentDateTime = new Date();
-  const options = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    timeZone: 'Asia/Dhaka', // Set to Bangladesh Standard Time
+  // Function to show date picker...
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
   };
-  const formattedCurrentTime = currentDateTime.toLocaleString('en-US', options);
-  const isoFormattedDateTime = currentDateTime.toISOString();
 
-  // console.log('checking the ral time', formattedCurrentTime);
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
 
-  useEffect(() => {
-    handleFilterPress(activeFilter);
+  const handleFromConfirm = date => {
+    console.log('A date has been picked: ', date);
+    setFromDate(date);
+    hideDatePicker();
+    handleDateSelection();
+  };
+  const handleToConfirm = date => {
+    console.log('A date has been picked: ', date);
+    setToDate(date);
+    hideDatePicker();
+    handleDateSelection();
+  };
+  console.log(toDate, 'this is to date..');
+  console.log(fromDate, 'this is form date..');
+  // test done on filter button................
+  const navigation = useNavigation();
 
-    // getdata(dynamicImei, dynamicDtf, dynamicDtt);
-    // getdata(dynamicImei, fromDate, toDate);
-  }, []);
-
-  // const handleDateSelection = () => {
-  //   if (fromDate && toDate) {
-  //     // If both fromDate and toDate are selected, call the API
-  //     handleFilterPress();
-  //   } else {
-  //     // Show an error message or handle the case when both dates are not selected
-  //     console.log('Please select both From and To dates');
-  //   }
-  // };
-
-  // data faching done................
-
-  const routedata = palybackdata?.route;
-  // console.log(
-  //   ' this is only route data......... ********************************************************************************************************************* ',
-  //   routedata,
-  // );
+  const handlePlaybak = () => {
+    navigation.navigate('PlaybackShow');
+  };
 
   if (loading) {
     // Data is still loading, render loading indicator or return null
     return <LoadingSpinner />;
   }
+
+  const handledatetimeview = () => {
+    setDatetimeview(!datetimeview);
+  };
 
   return (
     <View className=" flex flex-col h-full w-full  ">
@@ -303,8 +224,8 @@ const Playback = () => {
       </View>
 
       <View className=" bg-white mx-1 p-2 rounded-xl overflow-hidden my-1 ">
-        <Text className="flex items-center text-center font-bold">
-          Hello nahid
+        <Text className="flex items-center text-black text-center font-bold">
+          {singlecarinfo?.name}
         </Text>
         <View className=" px-6 ">
           <Text className=" text-blue-600  ">Filter</Text>
@@ -314,28 +235,28 @@ const Playback = () => {
           <View className=" flex  flex-row flex-wrap  mt-6 ">
             <Filterbutton
               label="Last Hour"
-              isActive={activeFilter === 'filter1'}
-              onPress={() => handleFilterPress('filter1')}
+              isActive={activeFilter === 'lastHour'}
+              onPress={() => handleFilterPress('lastHour')}
             />
             <Filterbutton
               label="Today"
-              isActive={activeFilter === 'filter5'}
-              onPress={() => handleFilterPress('filter5')}
+              isActive={activeFilter === 'today'}
+              onPress={() => handleFilterPress('today')}
             />
             <Filterbutton
               label="Last 3 days"
-              isActive={activeFilter === 'filter2'}
-              onPress={() => handleFilterPress('filter2')}
+              isActive={activeFilter === 'last3Days'}
+              onPress={() => handleFilterPress('last3Days')}
             />
             <Filterbutton
               label="last 7 days"
-              isActive={activeFilter === 'filter3'}
-              onPress={() => handleFilterPress('filter3')}
+              isActive={activeFilter === 'lastWeek'}
+              onPress={() => handleFilterPress('lastWeek')}
             />
             <Filterbutton
               label="Last Month"
-              isActive={activeFilter === 'filter4'}
-              onPress={() => handleFilterPress('filter4')}
+              isActive={activeFilter === 'lastMonth'}
+              onPress={() => handleFilterPress('lastMonth')}
             />
 
             {/* Add more FilterButton components for additional filters */}
@@ -355,7 +276,7 @@ const Playback = () => {
         {datetimeview && (
           <View className="mt-1">
             <View>
-              <Text className=" ">From: </Text>
+              <Text>From: </Text>
               <View className="flex flex-row mx-3 justify-between">
                 <TouchableOpacity
                   className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
@@ -365,33 +286,18 @@ const Playback = () => {
                     <Text className="text-white">Select date</Text>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
-                  onPress={showTimePicker}>
-                  <View className="flex flex-row items-center gap-1">
-                    <Image source={Timepicker} className=" h-7 w-7  " />
-                    <Text className="text-white">Select Time</Text>
-                  </View>
-                </TouchableOpacity>
               </View>
 
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
                 mode="date"
-                onConfirm={handleFormDateConfirm}
+                onConfirm={handleFromConfirm}
                 onCancel={hideDatePicker}
-              />
-
-              <DateTimePickerModal
-                isVisible={isTimePickerVisible}
-                mode="time"
-                onConfirm={handleTimeConfirm}
-                onCancel={hideTimePicker}
               />
             </View>
 
             <View>
-              <Text>To: </Text>
+              <Text className=" ">To: </Text>
               <View className="flex flex-row mx-3 justify-between">
                 <TouchableOpacity
                   className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
@@ -401,39 +307,42 @@ const Playback = () => {
                     <Text className="text-white">Select date</Text>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  className="  px-4 py-2 my-4 bg-[#006E99] rounded-2xl "
-                  onPress={showTimePicker}>
-                  <View className="flex flex-row items-center gap-1">
-                    <Image source={Timepicker} className=" h-7 w-7  " />
-                    <Text className="text-white">Select Time</Text>
-                  </View>
-                </TouchableOpacity>
               </View>
 
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
                 mode="date"
-                onConfirm={handleToDateConfirm}
+                onConfirm={handleToConfirm}
                 onCancel={hideDatePicker}
-              />
-
-              <DateTimePickerModal
-                isVisible={isTimePickerVisible}
-                mode="time"
-                onConfirm={handleTimeConfirm}
-                onCancel={hideTimePicker}
               />
             </View>
           </View>
         )}
 
-        <View className=" flex items-center">
+        {/* <View className=" flex items-center">
           <TouchableOpacity
             onPress={handlePlaybak}
             className=" px-4 py-2 my-4 bg-[#006E99] rounded-2xl  ">
             <Text className=" text-white">Go Play</Text>
           </TouchableOpacity>
+        </View> */}
+        <View className=" flex items-center">
+          {newerror ? (
+            <TouchableOpacity
+              onPress={() => {
+                // Show popup or error message
+                alert('An error occurred while fetching data.');
+              }}
+              className=" px-4 py-2 my-4  bg-red-500 rounded-2xl">
+              <Text className=" text-white">Go Play</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={handlePlaybak}
+              className=" px-4 py-2 my-4 bg-[#006E99] rounded-2xl">
+              <Text className=" text-white">Go Play</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>

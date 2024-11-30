@@ -24,13 +24,15 @@ const ObjectInfo = () => {
   console.log(sensors);
 
   // Filter the array based on the condition where name is "Ignition"
-  const ignitionSensors = sensors.filter(sensor => sensor?.name === 'Ignition');
+  const ignitionSensors = sensors?.filter(
+    sensor => sensor?.name === 'Ignition',
+  );
 
-  const gpsSensors = sensors.filter(sensor => sensor?.name === 'GPS Signal');
+  const gpsSensors = sensors?.filter(sensor => sensor?.name === 'GPS Signal');
 
   // Extract the valueFull for each object in the filtered array
-  const valueFullArray = ignitionSensors.map(sensor => sensor.valueFull);
-  const gpsvaluarry = gpsSensors.map(sensor => sensor.valueFull);
+  const valueFullArray = ignitionSensors?.map(sensor => sensor?.valueFull);
+  const gpsvaluarry = gpsSensors?.map(sensor => sensor?.valueFull);
 
   console.log(valueFullArray); // Output: ["On"]
 

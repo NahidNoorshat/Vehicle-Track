@@ -1,10 +1,27 @@
-import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import {
+  Button,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 
 // for google map....
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {
+  Marker,
+  PROVIDER_GOOGLE,
+  AnimatedRegion,
+} from 'react-native-maps';
 
 import Meter from '../assets/meterfinal.png';
+import CarMarker from '../assets/markericons/cariconmarker.png';
+import Humanview from '../assets/markericons/humantopviewicon.png';
+import cartop from '../assets/cartopview.png';
+import trafic from '../assets/trafficlights1.png';
+import Meter1 from '../assets/meterruhan.png';
 import Card1 from '../assets/9183608-1.png';
 import Card2 from '../assets/group2.png';
 import Card3 from '../assets/fluentcellulardata220filled1.png';
@@ -16,9 +33,14 @@ import Mapicon from '../assets/map-car-1.png';
 import GetData from '../components/GetData';
 import {AuthContext} from '../context/AuthProvider';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Geocoder from 'react-native-geocoding';
 
 const LiveTracking = () => {
-  const {iemei, singlecarinfo} = useContext(AuthContext);
+  const {iemei, singlecarinfo, iconmarker} = useContext(AuthContext);
+  // console.log(
+  //   iconmarker,
+  //   'cheking icon is comming or not....... **********************************************************************',
+  // );
   const {devicedata} = useContext(AuthContext);
   // const {setIemei} = useContext(AuthContext)
   console.log('This is feom Frame 2 i got iemei', iemei);
@@ -26,103 +48,99 @@ const LiveTracking = () => {
     'This is feom Frame 2 i got data _++++++++++++++++++++++++++++',
     devicedata,
   );
+  const [address, setAddress] = useState('');
+  const [mapType, setMapType] = useState('standard');
+  const markerRef = useRef();
 
+  const [showtraffic, setShowtraffic] = useState(false);
+  // 24.505603, 90.360886
+  const fallbackLatitude = 24.505603; // New York City latitude
+  const fallbackLongitude = 90.360886; // New York City longitude
+  // smooth car tracking....
+  const [coordinate, setCoordinate] = useState(
+    new AnimatedRegion({
+      latitude: singlecarinfo?.location_data?.lat || fallbackLatitude,
+      longitude: singlecarinfo?.location_data?.lng || fallbackLongitude,
+      latitudeDelta: zoomlavel,
+      longitudeDelta: zoomlavel,
+    }),
+  );
+
+  const toggleMapType = () => {
+    setMapType(prevType => (prevType === 'standard' ? 'hybrid' : 'standard'));
+  };
+
+  const handetraffic = () => {
+    setShowtraffic(!showtraffic);
+  };
   // sensor info....
   const {sensors} = singlecarinfo;
   console.log(sensors);
 
   // Filter the array based on the condition where name is "Ignition"
-  const ignitionSensors = sensors.filter(sensor => sensor?.name === 'Ignition');
+  const ignitionSensors = sensors?.filter(
+    sensor => sensor?.name === 'Ignition',
+  );
 
-  const gpsSensors = sensors.filter(sensor => sensor?.name === 'GPS Signal');
+  const gpsSensors = sensors?.filter(sensor => sensor?.name === 'GPS Signal');
 
   // Extract the valueFull for each object in the filtered array
-  const valueFullArray = ignitionSensors.map(sensor => sensor.valueFull);
-  const gpsvaluarry = gpsSensors.map(sensor => sensor.valueFull);
+  const valueFullArray = ignitionSensors?.map(sensor => sensor?.valueFull);
+  const gpsvaluarry = gpsSensors?.map(sensor => sensor?.valueFull);
 
   console.log(gpsvaluarry); // Output: ["On"]
-  // start lat log sett *************************************************************
 
-  const initialCoordinates = {
-    latitude: 37.7749,
-    longitude: -122.4194,
-  };
-
-  // State variables for latitude and longitude
-  const [coordinates, setCoordinates] = useState(initialCoordinates);
   const [zoomlavel, setZoomlavel] = useState(0.075);
 
-  // Function to update the coordinates
-  const updateCoordinates = () => {
-    // Example: Fetch new coordinates from an API or any other source
-    const newCoordinates = {
-      latitude: carInfo?.location_data?.lat,
-      longitude: carInfo?.location_data?.lng,
-    };
-
-    // Update the state with the new coordinates
-    setCoordinates(newCoordinates);
-  };
-
-  // finish lat log set+++++++++++++++++++++++++++++++++++++++++++++
-
-  const [carInfo, setCarInfo] = useState(null);
+  console.log(singlecarinfo, 'this is cheking.. live data...');
+  let latitude = singlecarinfo?.location_data?.lat;
+  let longitude = singlecarinfo?.location_data?.lng;
 
   useEffect(() => {
-    // Check if devicedata is defined before using find
-    if (devicedata) {
-      // Find the object with the matching IMEI in devicedata
-      console.log(
-        'the data of frame 22222222222222222222222222222222',
-        devicedata,
-      );
-      const selectedCar = devicedata.result?.find(car => car.imei === iemei);
+    Geocoder.init('AIzaSyCntjTjNgMy1UOc3MCdtVzuh1JytiEpZFo');
 
-      console.log(
-        'this is slect car   ===============================',
-        selectedCar,
-      );
-
-      // Check if the car with the matching IMEI is found
-      if (selectedCar) {
-        // Extract other information from the selected car
-        setCarInfo(selectedCar);
-      }
-    }
+    // Fetch address using reverse geocoding
+    Geocoder.from(latitude, longitude)
+      .then(json => {
+        const addressComponent = json.results[0].formatted_address;
+        setAddress(addressComponent);
+      })
+      .catch(error => console.log(error));
 
     if (speed > 0) {
       setZoomlavel(0.01);
     } else {
       setZoomlavel(0.075);
     }
-  }, [devicedata, iemei]);
+    animate(latitude, longitude);
+  }, [iemei, latitude, longitude]);
 
-  if (!devicedata) {
-    // Data is still loading, render loading indicator or return null
-    return <LoadingSpinner />;
-  }
+  const animate = (latitude, longitude) => {
+    const newCoordinate = {latitude, longitude};
+    if (Platform.OS == 'android') {
+      if (markerRef.current) {
+        markerRef.current.animateMarkerToCoordinate(newCoordinate, 7000);
+      }
+    } else {
+      coordinate.timing(newCoordinate).start();
+    }
+  };
 
-  console.log(
-    'this is crinfo ......................... 00000000000000',
-    carInfo,
-  );
-  console.log(
-    '????????????????????????????//////////////////////////////////////////////////',
-  );
-  console.log(coordinates?.latitude);
-  console.log(coordinates?.longitude);
-  let speed = carInfo?.location_data?.speed
-    ? parseInt(carInfo.location_data.speed)
+  let speed = singlecarinfo?.location_data?.speed
+    ? parseInt(singlecarinfo.location_data.speed)
     : null;
 
-  const odometer = carInfo?.odometer;
+  const odometer = singlecarinfo?.odometer;
 
-  if (!carInfo) {
+  if (!singlecarinfo) {
     // Data is still loading, render loading indicator or return null
     return <LoadingSpinner />;
   }
 
   console.log(speed, 'testing speed is ok or not ');
+  console.log(address);
+  console.log(singlecarinfo?.location_data?.angle, 'angle cheking..');
+  const rotationAngle = singlecarinfo?.location_data?.angle || 0;
 
   return (
     <View className=" flex flex-col h-full w-full ">
@@ -131,49 +149,70 @@ const LiveTracking = () => {
         <MapView
           className=" min-h-screen "
           provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+          mapType={mapType}
+          showsTraffic={showtraffic}
           region={{
-            latitude: carInfo?.location_data?.lat,
-            longitude: carInfo?.location_data?.lng,
-
+            latitude: singlecarinfo?.location_data?.lat || fallbackLatitude,
+            longitude: singlecarinfo?.location_data?.lng || fallbackLongitude,
             latitudeDelta: zoomlavel,
             longitudeDelta: zoomlavel,
           }}>
           {/* 23.170265, 90.092926 */}
-          <Marker
-            coordinate={{
-              latitude: carInfo?.location_data?.lat,
-              longitude: carInfo?.location_data?.lng,
-            }}>
-            <Image className=" h-[46.44px] w-[13.8px] " source={Mapicon} />
-          </Marker>
+
+          {latitude && longitude && (
+            <Marker.Animated ref={markerRef} coordinate={coordinate}>
+              <View className=" h-full w-full overflow-visible ">
+                <Image
+                  // className={`h-[44.44px] w-[13.8px] object-contain  origin-center overflow-visible  transform rotate-${rotationAngle}`}
+                  className=" h-[40px] w-[40px]  "
+                  source={iconmarker ? iconmarker : Humanview}
+                  style={{
+                    transform: [
+                      {
+                        rotate: `${
+                          singlecarinfo?.location_data?.angle || 0
+                        }deg`,
+                      },
+                    ],
+                  }}
+                />
+              </View>
+            </Marker.Animated>
+          )}
         </MapView>
+        <View className=" absolute top-3 right-5    ">
+          <TouchableOpacity onPress={toggleMapType}>
+            <Image className=" h-[30] w-[30]  " source={Card2} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handetraffic} className=" mt-3  ">
+            <Image className=" h-[40] w-[40]  " source={trafic} />
+          </TouchableOpacity>
+        </View>
       </View>
+
       {/* **************** Map impleataton Done *********************** */}
 
-      <View className="  h-auto w-auto bg-[#006E99] mx-3 rounded-b-2xl rounded-t-md overflow-hidden pb-6 ">
+      <View className="  h-auto w-auto bg-[#006E99] mx-3 rounded-b-2xl rounded-t-md overflow-hidden pb-2 my-1 ">
         <View className=" bg-white relative h-auto w-auto rounded-b-md   ">
-          {/* <View
-            style={{
-              borderBottomWidth: 3,
-              borderBottomColor: '#002535',
-            }}
-          /> */}
           <View className=" flex-row justify-between items-center px-4 pt-1 ">
             <Text className="text-black">
-              Mileage: {carInfo?.location_data?.speed}
+              Mileage: {singlecarinfo?.location_data?.speed}
             </Text>
             <View className="   z-10  ">
               <View className="items-center relative    ">
                 <Text className=" absolute text-white left-[30px] z-20 top-[27px] font-bold text-2xl ">
                   {speed}
                 </Text>
-                <Image className="h-[80] w-[80]  " source={Meter} />
+                <Image className="h-[60] w-[85]  " source={Meter1} />
               </View>
             </View>
-            <View className="text-center  ">
-              <Text className="text-black"> {carInfo?.name} </Text>
-              <View className=" w-[120px] ">
-                <Text className="text-[#F24E1E]">{carInfo?.status}</Text>
+            <View className="text-center mt-2  ">
+              <Text className="text-black"> {singlecarinfo?.name} </Text>
+              <View className=" w-[120px] mt-1 ">
+                <Text className="text-[#F24E1E]">{singlecarinfo?.status}</Text>
+                <Text className="text-[#F24E1E]">
+                  {singlecarinfo?.status_time}
+                </Text>
               </View>
             </View>
           </View>
@@ -218,6 +257,9 @@ const LiveTracking = () => {
             </View>
           </ScrollView>
         </View>
+        <Text className="text-black w-[300px] px-2 py-1 ">
+          {address ? address : null}
+        </Text>
       </View>
     </View>
   );

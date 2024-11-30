@@ -41,6 +41,7 @@ import Report from './screens/Report';
 import ShowReport from './screens/ShowReport';
 
 import {LogLevel, OneSignal} from 'react-native-onesignal';
+import Checkingtheapp from './screens/Checkingtheapp';
 
 function App() {
   const [hideSplashScreen, setHideSplashScreen] = React.useState(true);
@@ -119,7 +120,7 @@ function App() {
           <Stack.Screen
             name="Map"
             component={Map}
-            options={{headerShown: true}}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="GeoFence"

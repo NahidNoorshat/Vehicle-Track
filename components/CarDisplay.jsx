@@ -8,6 +8,8 @@ import {AuthContext} from '../context/AuthProvider';
 const CarDisplay = ({data}) => {
   const navigation = useNavigation();
   const {setIemei} = useContext(AuthContext);
+  console.log(data, 'come from frame1');
+  // console.log(data.icon);
 
   const handlePress = () => {
     console.log('the IMEI Number', data.imei);
@@ -17,129 +19,38 @@ const CarDisplay = ({data}) => {
   };
 
   return (
-    <View className="mt-2 mb-4 ">
-      <Pressable style={[styles.frame1InnerShadowBox]} onPress={handlePress}>
-        <View style={styles.frame1Child1ShadowBox}>
-          <View className="flex flex-row items-center flex-1 justify-between mr-2">
-            <View className="flex flex-row items-center gap-2">
+    <Pressable
+      onPress={handlePress}
+      className=" bg-[#006e99]  h-[120px] w-[300px] m-2 self-center pb-1 rounded-lg overflow-hidden shadow-2xl ">
+      <View className=" bg-white h-full w-full justify-center rounded-b-lg p-3 ">
+        <View className=" flex flex-row justify-start items-center gap-2 ">
+          <Image
+            source={require('../assets/car--convertible-005removebgpreview-1.png')}
+          />
+          <View className="flex ">
+            <Text className=" text-black text-base mb-1 ">{data?.name}</Text>
+            <View className="flex flex-row gap-2 mb-1 items-center">
               <Image
-                style={styles.carConvertible005RemovebgIcon}
-                resizeMode="cover"
-                className=" mx-3"
-                source={require('../assets/car--convertible-005removebgpreview-1.png')}
+                className="h-[11.03px] w-[15px]"
+                source={require('../assets/group.png')}
               />
-              <View className="flex ">
-                <Text
-                  className="mb-2"
-                  style={[styles.dmKa122563, styles.pmTypo]}>
-                  {/* DM KA 12-2563 */}
-                  {data?.name}
-                  {/* if (data !== null && data.name !== null){' '}
-                {
-                  // Access the name property
-                  data.name
-                } */}
-                </Text>
-                <View className="flex flex-row gap-2 mb-1">
-                  <Image
-                    className="h-[11.03px] w-[15px]"
-                    resizeMode="cover"
-                    source={require('../assets/group.png')}
-                  />
-                  <Text style={[styles.kmhTypo]}>
-                    {data.location_data.speed}/h
-                  </Text>
-                </View>
-                <View className="flex flex-row gap-2 ">
-                  <Image
-                    className=" h-[11px] w-[11px]  mr-1 "
-                    resizeMode="cover"
-                    source={require('../assets/eloff.png')}
-                  />
-                  <Text style={[styles.kmhTypo]}> {data.status} </Text>
-                </View>
+              <Text className=" text-black">{data?.location_data?.speed}</Text>
+            </View>
+            <View className="flex flex-row gap-2 w-[130px] items-center ">
+              <Image
+                className=" h-[11px] w-[11px]  mr-1 "
+                source={require('../assets/eloff.png')}
+              />
+              <View className=" w-[142px] mt-2 ">
+                <Text className=" text-black ">{data?.status}</Text>
+                <Text className=" text-black ">{data?.status_time}</Text>
               </View>
             </View>
-            <Image
-              //   className="absolute top-2 right-2"
-              className=" mb-16"
-              style={[
-                styles.icbaselineMenuOpenIcon1,
-                styles.icbaselineIconLayout,
-              ]}
-              resizeMode="cover"
-              source={require('../assets/icbaselinemenuopen.png')}
-            />
           </View>
         </View>
-      </Pressable>
-    </View>
+      </View>
+    </Pressable>
   );
 };
 
 export default CarDisplay;
-
-const styles = StyleSheet.create({
-  frame1Child1ShadowBox: {
-    height: 105,
-    width: 333,
-    elevation: 1,
-    shadowRadius: 1,
-    borderRadius: Border.br_8xs,
-    marginLeft: -166,
-    left: '50%',
-    backgroundColor: Color.colorWhite,
-    shadowOpacity: 1,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowColor: 'rgba(0, 0, 0, 0.25)',
-  },
-  frame1InnerShadowBox: {
-    height: 109,
-    width: 333,
-    elevation: 1,
-    shadowRadius: 1,
-    backgroundColor: Color.colorSteelblue,
-    marginLeft: -166,
-    borderRadius: Border.br_8xs,
-    left: '50%',
-    shadowOpacity: 1,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowColor: 'rgba(0, 0, 0, 0.25)',
-  },
-  carConvertible005RemovebgIcon: {
-    // top: 164,
-    // left: 38,
-    width: 100,
-    height: 63,
-  },
-  dmKa122563: {
-    fontFamily: FontFamily.interSemiBold,
-    fontWeight: '600',
-
-    color: Color.colorBlack,
-    fontSize: FontSize.size_xs,
-  },
-  pmTypo: {
-    color: Color.colorBlack,
-    fontSize: FontSize.size_xs,
-    textAlign: 'left',
-  },
-  kmhTypo: {
-    fontFamily: FontFamily.interMedium,
-    fontWeight: '500',
-
-    color: Color.colorBlack,
-    textAlign: 'left',
-    fontSize: FontSize.size_3xs,
-  },
-  icbaselineIconLayout: {
-    height: 19,
-    width: 18,
-  },
-});

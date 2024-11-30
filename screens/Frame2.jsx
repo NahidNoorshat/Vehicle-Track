@@ -8,7 +8,7 @@ import {AuthContext} from '../context/AuthProvider';
 
 const Frame2 = () => {
   const {iemei} = useContext(AuthContext);
-  const {devicedata, setSinglecarinf} = useContext(AuthContext);
+  const {devicedata, alldevice, setSinglecarinf} = useContext(AuthContext);
   // const {setIemei} = useContext(AuthContext)
   // console.log('This is feom Frame 2 i got iemei', iemei);
   // console.log(
@@ -19,13 +19,13 @@ const Frame2 = () => {
   const [carInfo, setCarInfo] = useState(null);
   useEffect(() => {
     // Check if devicedata is defined before using find
-    if (devicedata) {
+    if (alldevice) {
       // Find the object with the matching IMEI in devicedata
       // console.log(
       //   'the data of frame 22222222222222222222222222222222',
       //   devicedata,
       // );
-      const selectedCar = devicedata.result?.find(car => car.imei === iemei);
+      const selectedCar = alldevice?.find(car => car.imei === iemei);
 
       // console.log(
       //   'this is slect car   ===============================',
@@ -39,7 +39,7 @@ const Frame2 = () => {
         setSinglecarinf(selectedCar);
       }
     }
-  }, [devicedata, iemei]);
+  }, [alldevice, iemei]);
 
   console.log(
     'this is crinfo ......................... 00000000000000',
